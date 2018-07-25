@@ -118,7 +118,7 @@ $(document).ready(function() {
 
 function checkName() {
 	var name = $("#Name").val();
-	var nameRegex = /^[^ ]+ .+$/;
+	var nameRegex = /^.+$/;
 	if (!nameRegex.test(name)) {
 		$("#Name").parent(".validation-field-wrapper").children(".validation-error").show();
 		return false;
