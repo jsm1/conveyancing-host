@@ -22,7 +22,7 @@ var selectedStatus = "";
 $(document).ready(function() {
 
 	//loqate
-	var control = configureLoqate();
+	/*var control = configureLoqate();
 	control.listen("populate", function(address, variations) {
 			console.log(address);
             document.getElementById("postcode").value = address.City + ", " + address.PostalCode;
@@ -38,7 +38,10 @@ $(document).ready(function() {
     	//Capture_Interactive_Find_v1_00Begin("WN86-WF99-YA99-TT77", value, "#postcode", "AUS", "AUS", 7, "en");
     	//StoreFinder_Interactive_FindPlaceNames_v1_10Begin("WN86-WF99-YA99-TT77", value, "Similar", "AUS")
     	//Geocoding_International_RetrieveNearestPlaces_v1_00Begin(Key, Country, value, 10, 0, "None");
-    });
+    });*/
+
+    //jQuery autocomplete for postcodes
+
 
     //listeners for step 1 and 2 radio clicks
    $("input[name='Property-options']").click(function(event) {
@@ -65,6 +68,15 @@ $(document).ready(function() {
 
     
     //form validation
+
+    //for suburb tab
+    $(".about-btn").click(function() {
+    	if (checkPostcode()) {
+    		$("a.about-you").click();
+    	} else {
+    		return;
+    	}
+    });
 
     $("#Phone-number").keyup(function() {
     	if (shouldShowValidation) {
@@ -113,8 +125,109 @@ $(document).ready(function() {
     		$('.tab-link.optional-questions').click();
     	}
     });
+
+
+    //quote button listener
+    $(".btn-green-quote").click(function() {
+    	//populate text
+    	populateQuote();
+    	//submit mailchimp forms
+    });
     
 });
+
+var PRICE_MATRIX = {
+	Buy: {
+		"Existing Home": "900",
+		"Land": "900",
+		"apartment/unit/townhouse": "1050",
+		"Off the plan": "850"
+	},
+	Sell: {
+		"Existing Home": "900",
+		"Land": "900",
+		"apartment/unit/townhouse": "1050",
+		"Off the plan": "850"
+	},
+	Transfer: {
+		"Existing Home": "900",
+		"Land": "900",
+		"apartment/unit/townhouse": "1050",
+		"Off the plan": "850"
+	},
+	"Buy and sell": {
+		"Existing Home": "Contact Us",
+		"Land": "Contact Us",
+		"apartment/unit/townhouse": "Contact Us",
+		"Off the plan": "Contact Us"
+	}
+}
+
+var PRICE_REPLACE_TEXT = "price";
+var OPTION_REPLACE_TEXT = "option";
+var TYPE_REPLACE_TEXT = "type";
+var POSTCODE_REPLACE_TEXT = "postcode";
+
+var OPTION_TEXT_MATRIX = {
+	Buy: "buy",
+	Sell: "sell",
+	Transfer: "transfer",
+	"Buy and sell": "We will contact you to provide you the best price based on your requirements."
+}
+
+var TYPE_TEXT_MATRIX = {
+	"Existing Home": "an existing home",
+	"Land": "land",
+	"apartment/unit/townhouse": "an apartment/unit/townhouse",
+	"Off the plan": "off the plan"
+}
+var BUY_AND_SELL = "Buy and sell";
+var BUY_AND_SELL_TEXT = "Since you selected buy and sell we'll need more info...";
+
+function populateQuote() {
+	var propertyOption = $("input[name='Property-options']:checked").val();
+	var propertyType = $("input[name='Property-type']:checked").val();
+
+	//special case for buy and sell
+	if (propertyOption === BUY_AND_SELL) {
+		
+		$(".quote-heading").html(BUY_AND_SELL_TEXT);
+		$(".quote-amount").hide();
+		$(".quote-inclusions").hide();
+		return;
+	}
+
+	var postcode = $("#postcode").val();
+	var price = PRICE_MATRIX[propertyOption][propertyType];
+
+	//populate quote heading text
+	var quoteHeadingText = $(".quote-heading").html();
+	quoteHeadingText = replacePlaceholderText(quoteHeadingText, OPTION_REPLACE_TEXT, OPTION_TEXT_MATRIX[propertyOption]);
+	quoteHeadingText = replacePlaceholderText(quoteHeadingText, TYPE_REPLACE_TEXT, TYPE_TEXT_MATRIX[propertyType]);
+	quoteHeadingText = replacePlaceholderText(quoteHeadingText, POSTCODE_REPLACE_TEXT, postcode);
+
+	//update quote heading
+	$(".quote-heading").html(quoteHeadingText);
+
+	//update quote amount price
+	var quoteAmountText = $(".quote-amount").html();
+	$(".quote-amount").html(replacePlaceholderText(quoteAmountText, PRICE_REPLACE_TEXT, price));
+}
+
+function replacePlaceholderText(text, placeholderText, replacementText) {
+	var curlyPlaceholderText = "{{" + placeholderText + "}}";
+	return text.replace(curlyPlaceholderText, replacementText);
+}
+
+function checkPostcode() {
+	if (!$("#postcode").val()) {
+    	$("#postcode").parent(".validation-field-wrapper").children(".validation-error:not(.outside-victoria-message)").show();
+    	return false;
+    } else {
+    	$("#postcode").parent(".validation-field-wrapper").children(".validation-error:not(.outside-victoria-message)").hide();
+   		return true;
+    }
+}
 
 function checkName() {
 	var name = $("#Name").val();
@@ -364,7 +477,6 @@ function submitToMailchimp() {
 			MERGE9: status
 		},
 		dataType: "jsonp",
-		jsonp: 'c',
 		success: function(result) {
 			console.log(result.data);
 		},
@@ -374,4 +486,21 @@ function submitToMailchimp() {
 	}
 
 	$.ajax(ajaxOptions);
+}
+
+function ausPostTest() {
+	$.ajax(
+		{
+			url: "https://digitalapi.auspost.com.au/postcode/search.json",
+			data: {
+				q: "Melbourne",
+				state: "VIC",
+			},
+			headers: {
+				"AUTH-KEY": "d09d3808-55ea-4001-9347-6c2ef7e6b2c9"
+			}
+		})
+	.done(function(resp) { 
+		console.log(resp);
+	});
 }
