@@ -16,7 +16,7 @@ var TO_MAKE_REQUIRED = {
 
 //whether to show validation
 var shouldShowValidation = false;
-
+var shouldCheckPostcode = false;
 //global to keep track of select status
 var selectedStatus = "";
 $(document).ready(function() {
@@ -41,7 +41,7 @@ $(document).ready(function() {
     });*/
 
     //jQuery autocomplete for postcodes
-
+    $("#postcode").autocomplete({source: POST_CODES_ARRAY, delay: 1000});
 
     //listeners for step 1 and 2 radio clicks
    $("input[name='Property-options']").click(function(event) {
@@ -71,10 +71,17 @@ $(document).ready(function() {
 
     //for suburb tab
     $(".about-btn").click(function() {
+    	shouldCheckPostcode = true;
     	if (checkPostcode()) {
     		$("a.about-you").click();
     	} else {
     		return;
+    	}
+    });
+
+    $("#postcode").keyup(function() {
+    	if (shouldCheckPostcode) {
+    		checkPostcode();
     	}
     });
 
@@ -132,6 +139,7 @@ $(document).ready(function() {
     	//populate text
     	populateQuote();
     	//submit mailchimp forms
+    	submitToMailchimp();
     });
     
 });
@@ -220,13 +228,39 @@ function replacePlaceholderText(text, placeholderText, replacementText) {
 }
 
 function checkPostcode() {
+	//postcode checking
+	var generalPostcodeRegex = /^[^\,]+, [^\,]+, [012456789]\d{3}/;
+	var vicPostcodeRegex = /^[^\,]+, [^\,]+, 3\d{3}/;
+	var postcodeValue = $("#postcode").val();
+
+
+	//check postcode present generally
+	if (!postcodeValue) {
+		$("#postcode").parent(".validation-field-wrapper").children(".validation-error:not(.outside-victoria-message)").show();
+    	return false;
+	}
+	//if in vic postcode format
+	if (vicPostcodeRegex.test(postcodeValue)) {
+		$("#postcode").parent(".validation-field-wrapper").children(".validation-error").hide();
+		return true;
+	} else {
+		if (generalPostcodeRegex.test(postcodeValue)) {
+			$("#postcode").parent(".validation-field-wrapper").children(".outside-victoria-message").show();
+			$("#postcode").parent(".validation-field-wrapper").children(".validation-error:not(.outside-victoria-message)").hide();
+		} else {
+			$("#postcode").parent(".validation-field-wrapper").children(".outside-victoria-message").hide();
+			$("#postcode").parent(".validation-field-wrapper").children(".validation-error:not(.outside-victoria-message)").show();
+		}
+		return false;
+	}
+	/*
 	if (!$("#postcode").val()) {
     	$("#postcode").parent(".validation-field-wrapper").children(".validation-error:not(.outside-victoria-message)").show();
     	return false;
     } else {
     	$("#postcode").parent(".validation-field-wrapper").children(".validation-error:not(.outside-victoria-message)").hide();
    		return true;
-    }
+    }*/
 }
 
 function checkName() {
@@ -486,6 +520,18 @@ function submitToMailchimp() {
 	}
 
 	$.ajax(ajaxOptions);
+
+	//second mail chimp form
+	/*
+	var salesTeamFormUrl = "";
+	var salesTeamU = "";
+	var salesTeamId = "";
+	ajaxOptions.url = salesTeamFormUrl;
+	ajaxOptions.data.u = salesTeamU;
+	ajaxOptions.data.id = salesTeamId;
+
+	$.ajax(ajaxOptions);
+	*/
 }
 
 function ausPostTest() {
