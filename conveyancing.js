@@ -69,7 +69,13 @@ $(document).ready(function() {
                 response(results.slice(0, 10));
             }, 
             delay: 500,
-            minLength: 2
+            minLength: 2,
+            select: function(event, ui) {
+                shouldCheckPostcode = true;
+                $(this).val(ui.item.value);
+                checkPostcode();
+                return false;
+            }
         }
     );
 
@@ -184,10 +190,19 @@ $(document).ready(function() {
 
     //quote button listener
     $(".btn-green-quote").click(function() {
+        //get options
+        var optionals = [];
+        $(".optional-question-list:visible input:checked").each(function() {
+            optionals.push($(this).attr("id"));
+        })
+        var optionalsString;
+        if (optionals.length > 0) {
+            optionalsString = optionals.join(", ");
+        }
     	//populate text
     	populateQuote();
     	//submit mailchimp forms
-    	submitToMailchimp();
+    	submitToMailchimp(optionalsString);
     });
     
 });
@@ -234,7 +249,7 @@ function populateQuote() {
 		return;
 	}
 
-	var postcode = $("#postcode").val();
+	var postcode = formatPostcode($("#postcode").val());
 	var price = PRICE_MATRIX[propertyOption][propertyType];
 
 	//populate quote heading text
@@ -249,6 +264,28 @@ function populateQuote() {
 	//update quote amount price
 	var quoteAmountText = $(".quote-amount").html();
 	$(".quote-amount").html(replacePlaceholderText(quoteAmountText, PRICE_REPLACE_TEXT, price));
+}
+
+function formatPostcode(postcode) {
+    if (!postcode) {
+        return;
+    }
+
+    var postcodeElements = postcode.split(/, /);
+    var suburb = postcodeElements[0];
+    var postcodeNum = postcodeElements[2];
+
+    //convert suburb to title case
+    var suburbWords = suburb.split(/[\s\-]/);
+    for (var i = 0; i < suburbWords.length; i++) {
+        //get first char and capitalise then extract rest of the string and conver to lower case
+        suburbWords[i] = suburbWords[i].charAt(0).toUpperCase() + suburbWords[i].slice(1).toLowerCase();
+    }
+
+    var formattedSuburb = suburbWords.join(" ");
+
+    return formattedSuburb + ", " + postcodeNum;
+
 }
 
 function replacePlaceholderText(text, placeholderText, replacementText) {
@@ -266,6 +303,8 @@ function checkPostcode() {
 	//check postcode present generally
 	if (!postcodeValue) {
 		$("#postcode").parent(".validation-field-wrapper").children(".validation-error:not(.outside-victoria-message)").show();
+        $("#postcode-sell").parent(".validation-field-wrapper").children(".outside-victoria-message").hide();
+
     	return false;
 	}
 	//if in vic postcode format
@@ -302,6 +341,8 @@ function checkPostcodeSell() {
     //check postcode present generally
     if (!postcodeValue) {
         $("#postcode-sell").parent(".validation-field-wrapper").children(".validation-error:not(.outside-victoria-message)").show();
+        $("#postcode-sell").parent(".validation-field-wrapper").children(".outside-victoria-message").hide();
+
         return false;
     }
     //if in vic postcode format
@@ -544,7 +585,7 @@ function Geocoding_International_RetrieveNearestPlaces_v1_00End(response) {
     }
 }
 
-function submitToMailchimp() {
+function submitToMailchimp(optionals) {
 	//property options
 	var propertyOptions = $("input[name='Property-options']:checked").val();
 	//property type
@@ -573,7 +614,8 @@ function submitToMailchimp() {
 			MERGE6: propertyOptions,
 			MERGE7: propertyType,
 			MERGE8: postcode,
-			MERGE9: status
+			MERGE9: status,
+            MERGE10: optionals
 		},
 		dataType: "jsonp",
 		success: function(result) {
@@ -587,16 +629,26 @@ function submitToMailchimp() {
 	$.ajax(ajaxOptions);
 
 	//second mail chimp form
-	/*
-	var salesTeamFormUrl = "";
-	var salesTeamU = "";
-	var salesTeamId = "";
-	ajaxOptions.url = salesTeamFormUrl;
-	ajaxOptions.data.u = salesTeamU;
-	ajaxOptions.data.id = salesTeamId;
+	
+	var salesTeamFormUrl = "https://conveyancing.us18.list-manage.com/subscribe/post-json";
+	var salesTeamU = "a65e3f2337aa9e93485dc95bb";
+	var salesTeamId = "802b1acc9c";
+    ajaxOptions.data = {
+        u: salesTeamU,
+        id: salesTeamId,
+        MERGE0: email,
+        MERGE1: name,
+        MERGE2: "",
+        MERGE5: propertyOptions,
+        MERGE6: propertyType,
+        MERGE7: postcode,
+        MERGE8: status,
+        MERGE9: optionals
+    }
+	//ajaxOptions.url = salesTeamFormUrl;
 
 	$.ajax(ajaxOptions);
-	*/
+	
 }
 
 function ausPostTest() {
