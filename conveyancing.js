@@ -14,6 +14,27 @@ var TO_MAKE_REQUIRED = {
 	"Buy and sell": ".buy-sell input[meta-required-removed='true']"
 }
 
+var PRICE_REPLACE_TEXT = "price";
+var OPTION_REPLACE_TEXT = "option";
+var TYPE_REPLACE_TEXT = "type";
+var POSTCODE_REPLACE_TEXT = "postcode";
+
+var OPTION_TEXT_MATRIX = {
+    Buy: "buy",
+    Sell: "sell",
+    Transfer: "transfer",
+    "Buy and sell": "We will contact you to provide you the best price based on your requirements."
+}
+
+var TYPE_TEXT_MATRIX = {
+    "Existing Home": "an existing home",
+    "Land": "land",
+    "apartment/unit/townhouse": "an apartment/unit/townhouse",
+    "Off the plan": "off the plan"
+}
+var BUY_AND_SELL = "Buy and sell";
+var BUY_AND_SELL_TEXT = "Since you selected buy and sell we'll need more info...";
+
 //whether to show validation
 var shouldShowValidation = false;
 var shouldCheckPostcode = false;
@@ -41,7 +62,16 @@ $(document).ready(function() {
     });*/
 
     //jQuery autocomplete for postcodes
-    $("#postcode").autocomplete({source: POST_CODES_ARRAY, delay: 1000});
+    $("#postcode, #postcode-sell").autocomplete(
+        {
+            source: function(request, response) {
+                var results = $.ui.autocomplete.filter(POST_CODES_ARRAY, request.term);
+                response(results.slice(0, 10));
+            }, 
+            delay: 500,
+            minLength: 2
+        }
+    );
 
     //listeners for step 1 and 2 radio clicks
    $("input[name='Property-options']").click(function(event) {
@@ -60,28 +90,46 @@ $(document).ready(function() {
     });
 
     $("input[name='Property-type']").click(function(event) {
+        //check if buy and sell mode and there must be two property types checked
+        if ($("input[name='Property-options']:checked").val() === BUY_AND_SELL && $("input[name='Property-type-sell']:checked").length === 0) {
+            return;
+        }
     	window.setTimeout(function() {
     		$(".bottom-bar a.suburb-btn").click();
     	}, RADIO_CLICK_DELAY);
     	
     });
 
+    $("input[name='Property-type-sell']").click(function(event) {
+        //if other is also set
+        if ($("input[name='Property-type']:checked").length) {
+            window.setTimeout(function() {
+                $(".bottom-bar a.suburb-btn").click();
+            }, RADIO_CLICK_DELAY);
+        }
+    });
     
     //form validation
 
     //for suburb tab
     $(".about-btn").click(function() {
     	shouldCheckPostcode = true;
-    	if (checkPostcode()) {
+        var isPostcodeValid = checkPostcode();
+        var isPostcodeSellValid = true;
+        if ($("input[name='Property-options']:checked").val() === BUY_AND_SELL) {
+            isPostcodeSellValid = checkPostcodeSell();
+        }
+    	if (isPostcodeValid && isPostcodeSellValid) {
     		$("a.about-you").click();
     	} else {
     		return;
     	}
     });
 
-    $("#postcode").keyup(function() {
+    $("#postcode, #postcode-sell").keyup(function() {
     	if (shouldCheckPostcode) {
     		checkPostcode();
+            checkPostcodeSell();
     	}
     });
 
@@ -171,26 +219,7 @@ var PRICE_MATRIX = {
 	}
 }
 
-var PRICE_REPLACE_TEXT = "price";
-var OPTION_REPLACE_TEXT = "option";
-var TYPE_REPLACE_TEXT = "type";
-var POSTCODE_REPLACE_TEXT = "postcode";
 
-var OPTION_TEXT_MATRIX = {
-	Buy: "buy",
-	Sell: "sell",
-	Transfer: "transfer",
-	"Buy and sell": "We will contact you to provide you the best price based on your requirements."
-}
-
-var TYPE_TEXT_MATRIX = {
-	"Existing Home": "an existing home",
-	"Land": "land",
-	"apartment/unit/townhouse": "an apartment/unit/townhouse",
-	"Off the plan": "off the plan"
-}
-var BUY_AND_SELL = "Buy and sell";
-var BUY_AND_SELL_TEXT = "Since you selected buy and sell we'll need more info...";
 
 function populateQuote() {
 	var propertyOption = $("input[name='Property-options']:checked").val();
@@ -260,6 +289,42 @@ function checkPostcode() {
     } else {
     	$("#postcode").parent(".validation-field-wrapper").children(".validation-error:not(.outside-victoria-message)").hide();
    		return true;
+    }*/
+}
+
+function checkPostcodeSell() {
+    //postcode checking
+    var generalPostcodeRegex = /^[^\,]+, [^\,]+, [012456789]\d{3}/;
+    var vicPostcodeRegex = /^[^\,]+, [^\,]+, 3\d{3}/;
+    var postcodeValue = $("#postcode-sell").val();
+
+
+    //check postcode present generally
+    if (!postcodeValue) {
+        $("#postcode-sell").parent(".validation-field-wrapper").children(".validation-error:not(.outside-victoria-message)").show();
+        return false;
+    }
+    //if in vic postcode format
+    if (vicPostcodeRegex.test(postcodeValue)) {
+        $("#postcode-sell").parent(".validation-field-wrapper").children(".validation-error").hide();
+        return true;
+    } else {
+        if (generalPostcodeRegex.test(postcodeValue)) {
+            $("#postcode-sell").parent(".validation-field-wrapper").children(".outside-victoria-message").show();
+            $("#postcode-sell").parent(".validation-field-wrapper").children(".validation-error:not(.outside-victoria-message)").hide();
+        } else {
+            $("#postcode-sell").parent(".validation-field-wrapper").children(".outside-victoria-message").hide();
+            $("#postcode-sell").parent(".validation-field-wrapper").children(".validation-error:not(.outside-victoria-message)").show();
+        }
+        return false;
+    }
+    /*
+    if (!$("#postcode").val()) {
+        $("#postcode").parent(".validation-field-wrapper").children(".validation-error:not(.outside-victoria-message)").show();
+        return false;
+    } else {
+        $("#postcode").parent(".validation-field-wrapper").children(".validation-error:not(.outside-victoria-message)").hide();
+        return true;
     }*/
 }
 
@@ -543,7 +608,6 @@ function ausPostTest() {
 				state: "VIC",
 			},
 			headers: {
-				"AUTH-KEY": "d09d3808-55ea-4001-9347-6c2ef7e6b2c9"
 			}
 		})
 	.done(function(resp) { 
