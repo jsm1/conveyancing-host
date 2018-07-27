@@ -1,5 +1,5 @@
 //globals
-var RADIO_CLICK_DELAY = 500;
+var RADIO_CLICK_DELAY = 250;
 var TO_HIDE_SELECTORS = {
 	"Buy": ".sell input[required], .transfer input[required], .buy-sell input[required]",
 	"Sell": ".buy input[required], .transfer input[required], .buy-sell input[required]",
@@ -38,6 +38,7 @@ var BUY_AND_SELL_TEXT = "Since you selected buy and sell we'll need more info...
 //whether to show validation
 var shouldShowValidation = false;
 var shouldCheckPostcode = false;
+var shouldCheckPostcodeSell = false;
 //global to keep track of select status
 var selectedStatus = "";
 $(document).ready(function() {
@@ -71,9 +72,16 @@ $(document).ready(function() {
             delay: 500,
             minLength: 2,
             select: function(event, ui) {
-                shouldCheckPostcode = true;
+                
                 $(this).val(ui.item.value);
-                checkPostcode();
+                if ($(this).attr("id") === "postcode") {
+                    shouldCheckPostcode = true;
+                    checkPostcode();
+                } else {
+                    shouldCheckPostcodeSell = true;
+                    checkPostcodeSell();
+                }
+
                 return false;
             }
         }
@@ -135,8 +143,10 @@ $(document).ready(function() {
     $("#postcode, #postcode-sell").keyup(function() {
     	if (shouldCheckPostcode) {
     		checkPostcode();
-            checkPostcodeSell();
     	}
+        if (shouldCheckPostcodeSell) {
+            checkPostcodeSell();
+        }
     });
 
     $("#Phone-number").keyup(function() {
