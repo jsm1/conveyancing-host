@@ -214,8 +214,34 @@ $(document).ready(function() {
     	//submit mailchimp forms
     	submitToMailchimp(optionalsString);
     });
+
+
+    //query string skip ahead
+    checkQueryParams();
     
 });
+
+function checkQueryParams() {
+    var params = getQueryParams();
+    const REQUIRED_PARAMS = ["option", "type", "suburb"];
+    for (let p of REQUIRED_PARAMS) {
+        if (!params[p]) {
+            return;
+        }
+    }
+
+    //option
+    $("input[name='Property-options'][value='" + params["option"] + "']").click();
+    //$(".bottom-bar.first-bar a").click();
+    //type
+    $("input[name='Property-type'][value='" + params["type"] + "']").click();
+    //$("a.suburb-btn").click();
+    //postcode
+    $("#postcode").val(decodeURIComponent(params["suburb"]));
+    window.setTimeout(function() {$("a.about-btn").click();}, 500);
+
+    //$("a[data-w-tab='About you']").click();
+}
 
 var PRICE_MATRIX = {
 	Buy: {
@@ -661,18 +687,25 @@ function submitToMailchimp(optionals) {
 	
 }
 
-function ausPostTest() {
-	$.ajax(
-		{
-			url: "https://digitalapi.auspost.com.au/postcode/search.json",
-			data: {
-				q: "Melbourne",
-				state: "VIC",
-			},
-			headers: {
-			}
-		})
-	.done(function(resp) { 
-		console.log(resp);
-	});
+function getQueryParams() {
+    //get query string excluding ?
+    var queryString = window.location.search.substring(1);
+    //split on &
+    var paramsSplit = queryString.split("&");
+
+    var params = {};
+    //iterate through, split params
+    for (let p of paramsSplit) {
+        var keyValue = p.split("=");
+        //if key and value present
+        if (keyValue.length > 1) {
+            params[keyValue[0]] = keyValue[1];
+        } else {
+            params[keyValue[0]] = "";
+        }
+        
+    }
+
+    return params;
+
 }
