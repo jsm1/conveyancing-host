@@ -43,6 +43,7 @@ var shouldCheckPostcodeSell = false;
 var selectedStatus = "";
 $(document).ready(function() {
 
+
 	//loqate
 	/*var control = configureLoqate();
 	control.listen("populate", function(address, variations) {
@@ -215,14 +216,31 @@ $(document).ready(function() {
     	submitToMailchimp(optionalsString);
     });
 
+    //listeners for ga events
+    $("#postcode").blur(function() {
+        ga('send', 'pageview', 'ENTERED POSTCODE: ' + $(this).val());
+    });
+
+    $("#postcode-sell").blur(function() {
+        ga('send', 'pageview', 'ENTERED POSTCODE FOR SELLING: ' + $(this).val());
+    });
+
 
     //query string skip ahead
     checkQueryParams();
+    
     
 });
 
 function checkQueryParams() {
     var params = getQueryParams();
+    //if there is are query params then show loading screen
+    /*if (Object.keys(params).length === 0) {
+        return;
+    } else {
+        $("#loading-block").show();
+        $("#wf-form-Main-Quote-Form").hide();
+    }*/
     const REQUIRED_PARAMS = ["option", "type", "suburb"];
     for (let p of REQUIRED_PARAMS) {
         if (!params[p]) {
@@ -231,14 +249,22 @@ function checkQueryParams() {
     }
 
     //option
-    $("input[name='Property-options'][value='" + params["option"] + "']").click();
+    $("input[name='Property-options'][value='" + decodeURIComponent(params["option"]) + "']").click();
     //$(".bottom-bar.first-bar a").click();
     //type
-    $("input[name='Property-type'][value='" + params["type"] + "']").click();
+    $("input[name='Property-type'][value='" + decodeURIComponent(params["type"]) + "']").click();
     //$("a.suburb-btn").click();
+    
     //postcode
     $("#postcode").val(decodeURIComponent(params["suburb"]));
-    window.setTimeout(function() {$("a.about-btn").click();}, 500);
+    //send ga tag event for postcode
+    ga('send', 'pageview', 'ENTERED POSTCODE: ' + decodeURIComponent(params["suburb"]));
+
+    window.setTimeout(function() {
+        $("a.about-btn").click();
+      //  $("#loading-block").hide();
+        //$("#wf-form-Main-Quote-Form").show();
+    }, 500);
 
     //$("a[data-w-tab='About you']").click();
 }
@@ -357,14 +383,6 @@ function checkPostcode() {
 		}
 		return false;
 	}
-	/*
-	if (!$("#postcode").val()) {
-    	$("#postcode").parent(".validation-field-wrapper").children(".validation-error:not(.outside-victoria-message)").show();
-    	return false;
-    } else {
-    	$("#postcode").parent(".validation-field-wrapper").children(".validation-error:not(.outside-victoria-message)").hide();
-   		return true;
-    }*/
 }
 
 function checkPostcodeSell() {
@@ -688,6 +706,9 @@ function submitToMailchimp(optionals) {
 }
 
 function getQueryParams() {
+    if (!window.location.search) {
+        return {};
+    }
     //get query string excluding ?
     var queryString = window.location.search.substring(1);
     //split on &
