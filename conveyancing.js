@@ -218,11 +218,19 @@ $(document).ready(function() {
 
     //listeners for ga events
     $("#postcode").blur(function() {
-        ga('send', 'event', 'ENTERED SUBURB: ' + $(this).val());
+        window.dataLayer.push({
+          'event' : 'ENTERED SUBURB',
+          'eventCategory' : 'ENTERED SUBURB',
+          'eventAction' : $(this).val()
+        });
     });
 
     $("#postcode-sell").blur(function() {
-        ga('send', 'event', 'ENTERED SUBURB: ' + $(this).val());
+        window.dataLayer.push({
+          'event' : 'ENTERED SUBURB',
+          'eventCategory' : 'ENTERED SUBURB',
+          'eventAction' : $(this).val()
+        });
     });
 
 
@@ -258,7 +266,11 @@ function checkQueryParams() {
     //postcode
     $("#postcode").val(decodeURIComponent(params["suburb"]));
     //send ga tag event for postcode
-    ga('send', 'event', 'ENTERED SUBURB: ' + decodeURIComponent(params["suburb"]));
+    window.dataLayer.push({
+          'event' : 'ENTERED SUBURB',
+          'eventCategory' : 'ENTERED SUBURB',
+          'eventAction' : decodeURIComponent(params["suburb"])
+    });
 
     window.setTimeout(function() {
         $("a.about-btn").click();
