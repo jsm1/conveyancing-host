@@ -258,6 +258,12 @@ function checkQueryParams() {
 
     //option
     $("input[name='Property-options'][value='" + decodeURIComponent(params["option"]) + "']").click();
+    
+    //special case for buy and sell
+    if (decodeURIComponent(params["option"]) === "Buy and sell") {
+        return;
+    }
+
     //$(".bottom-bar.first-bar a").click();
     //type
     $("input[name='Property-type'][value='" + decodeURIComponent(params["type"]) + "']").click();
