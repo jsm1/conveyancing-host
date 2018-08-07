@@ -250,11 +250,19 @@ function checkQueryParams() {
         $("#wf-form-Main-Quote-Form").hide();
     }*/
     const REQUIRED_PARAMS = ["option", "type", "suburb"];
+
+    for (var i = 0; i < REQUIRED_PARAMS.length; i++) {
+        if (!params[REQUIRED_PARAMS[i]]) {
+            return;
+        }
+    }
+    //replaced for..let for IE 11
+/*
     for (let p of REQUIRED_PARAMS) {
         if (!params[p]) {
             return;
         }
-    }
+    }*/
 
     //option
     $("input[name='Property-options'][value='" + decodeURIComponent(params["option"]) + "']").click();
@@ -506,157 +514,6 @@ function makeRequired(selectedOption) {
 }
 
 
-
-function Capture_Interactive_Find_v1_00Begin(Key, Text, Container, Origin, Countries, Limit, Language) {
-    var script = document.createElement("script"),
-        head = document.getElementsByTagName("head")[0],
-        url = "https://api.addressy.com/Capture/Interactive/Find/v1.00/json3.ws?";
-
-    // Build the query string
-    url += "&Key=" + encodeURIComponent(Key);
-    url += "&Text=" + encodeURIComponent(Text);
-    //url += "&Container=" + encodeURIComponent(Container);
-    url += "&Origin=" + encodeURIComponent(Origin);
-    url += "&Countries=" + encodeURIComponent(Countries);
-    //url += "&Limit=" + encodeURIComponent(Limit);
-    url += "&Language=" + encodeURIComponent(Language);
-    url += "&callback=Capture_Interactive_Find_v1_00End";
-
-    script.src = url;
-
-    // Make the request
-    script.onload = script.onreadystatechange = function () {
-        if (!this.readyState || this.readyState === "loaded" || this.readyState === "complete") {
-            script.onload = script.onreadystatechange = null;
-            if (head && script.parentNode)
-                head.removeChild(script);
-        }
-    }
-
-    head.insertBefore(script, head.firstChild);
-}
-
-function Capture_Interactive_Find_v1_00End(response) {
-	console.log(response);
-    // Test for an error
-    if (response.Items.length == 1 && typeof(response.Items[0].Error) != "undefined") {
-        // Show the error message
-        alert(response.Items[0].Description);
-    }
-    else {
-        // Check if there were any items found
-        if (response.Items.length == 0)
-            alert("Sorry, there were no results");
-        else {
-            // PUT YOUR CODE HERE
-            //FYI: The output is an array of key value pairs (e.g. response.Items[0].Id), the keys being:
-            //Id
-            //Type
-            //Text
-            //Highlight
-            //Description
-        }
-    }
-}
-
-
-function StoreFinder_Interactive_FindPlaceNames_v1_10Begin(Key, SearchTerm, MatchType, Country) {
-    var script = document.createElement("script"),
-        head = document.getElementsByTagName("head")[0],
-        url = "https://api.addressy.com/StoreFinder/Interactive/FindPlaceNames/v1.10/json3.ws?";
-
-    // Build the query string
-    url += "&Key=" + encodeURIComponent(Key);
-    url += "&SearchTerm=" + encodeURIComponent(SearchTerm);
-    url += "&MatchType=" + encodeURIComponent(MatchType);
-    url += "&Country=" + encodeURIComponent(Country);
-    url += "&callback=StoreFinder_Interactive_FindPlaceNames_v1_10End";
-
-    script.src = url;
-
-    // Make the request
-    script.onload = script.onreadystatechange = function () {
-        if (!this.readyState || this.readyState === "loaded" || this.readyState === "complete") {
-            script.onload = script.onreadystatechange = null;
-            if (head && script.parentNode)
-                head.removeChild(script);
-        }
-    }
-
-    head.insertBefore(script, head.firstChild);
-}
-
-function StoreFinder_Interactive_FindPlaceNames_v1_10End(response) {
-
-	console.log(response);
-    // Test for an error
-    if (response.Items.length == 1 && typeof(response.Items[0].Error) != "undefined") {
-        // Show the error message
-        alert(response.Items[0].Description);
-    }
-    else {
-        // Check if there were any items found
-        if (response.Items.length == 0)
-            console.log("Sorry, there were no results");
-        else {
-            // PUT YOUR CODE HERE
-            //FYI: The output is an array of key value pairs (e.g. response.Items[0].Id), the keys being:
-            //Id
-            //Place
-        }
-    }
-}
-
-function Geocoding_International_RetrieveNearestPlaces_v1_00Begin(Key, Country, CentrePoint, MaximumItems, MaximumRadius, FilterOptions) {
-    var script = document.createElement("script"),
-        head = document.getElementsByTagName("head")[0],
-        url = "https://api.addressy.com/Geocoding/International/RetrieveNearestPlaces/v1.00/json3.ws?";
-
-    // Build the query string
-    url += "&Key=" + encodeURIComponent(Key);
-    url += "&Country=" + encodeURIComponent(Country);
-    url += "&CentrePoint=" + encodeURIComponent(CentrePoint);
-    url += "&MaximumItems=" + encodeURIComponent(MaximumItems);
-    url += "&MaximumRadius=" + encodeURIComponent(MaximumRadius);
-    url += "&FilterOptions=" + encodeURIComponent(FilterOptions);
-    url += "&callback=Geocoding_International_RetrieveNearestPlaces_v1_00End";
-
-    script.src = url;
-
-    // Make the request
-    script.onload = script.onreadystatechange = function () {
-        if (!this.readyState || this.readyState === "loaded" || this.readyState === "complete") {
-            script.onload = script.onreadystatechange = null;
-            if (head && script.parentNode)
-                head.removeChild(script);
-        }
-    }
-
-    head.insertBefore(script, head.firstChild);
-}
-
-function Geocoding_International_RetrieveNearestPlaces_v1_00End(response) {
-	console.log(response)
-    // Test for an error
-    if (response.Items.length == 1 && typeof(response.Items[0].Error) != "undefined") {
-        // Show the error message
-        alert(response.Items[0].Description);
-    }
-    else {
-        // Check if there were any items found
-        if (response.Items.length == 0)
-            console.log("Sorry, there were no results");
-        else {
-            // PUT YOUR CODE HERE
-            //FYI: The output is an array of key value pairs (e.g. response.Items[0].Location), the keys being:
-            //Location
-            //Distance
-            //Latitude
-            //Longitude
-        }
-    }
-}
-
 function submitToMailchimp(optionals) {
 	//property options
 	var propertyOptions = $("input[name='Property-options']:checked").val();
@@ -673,7 +530,16 @@ function submitToMailchimp(optionals) {
 	var email = $("#Email-address").val();
 		//status
 	var status = selectedStatus;
-	//optionals
+	
+
+    //add today's date
+    var dateToday = today;
+    var quote = "";
+    if (propertyOptions !== BUY_AND_SELL) {
+        quote = PRICE_MATRIX[propertyOptions][propertyType];
+    }
+
+        
 
 	var ajaxOptions = {
 		url: "https://conveyancing.us18.list-manage.com/subscribe/post-json",
@@ -687,7 +553,9 @@ function submitToMailchimp(optionals) {
 			MERGE7: propertyType,
 			MERGE8: postcode,
 			MERGE9: status,
-            MERGE10: optionals
+            MERGE10: optionals,
+            MERGE11: dateToday,
+            MERGE12: quote
 		},
 		dataType: "jsonp",
 		success: function(result) {
@@ -715,8 +583,10 @@ function submitToMailchimp(optionals) {
         MERGE6: propertyType,
         MERGE7: postcode,
         MERGE8: status,
-        MERGE9: optionals
-    }
+        MERGE9: optionals,
+        MERGE10: dateToday,
+        MERGE11: quote
+    };
 	//ajaxOptions.url = salesTeamFormUrl;
 
 	$.ajax(ajaxOptions);
@@ -734,6 +604,18 @@ function getQueryParams() {
 
     var params = {};
     //iterate through, split params
+
+    for (var i = 0; i < paramsSplit.length; i++) {
+        var keyValue = paramsSplit[i].split("=");
+        //if key and value present
+        if (keyValue.length > 1) {
+            params[keyValue[0]] = keyValue[1];
+        } else {
+            params[keyValue[0]] = "";
+        }
+    }
+    //removed for...let for IE 11
+/*
     for (let p of paramsSplit) {
         var keyValue = p.split("=");
         //if key and value present
@@ -743,7 +625,7 @@ function getQueryParams() {
             params[keyValue[0]] = "";
         }
         
-    }
+    }*/
 
     return params;
 
