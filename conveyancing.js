@@ -67,7 +67,7 @@ $(document).ready(function() {
     $("#postcode, #postcode-sell").autocomplete(
         {
             source: function(request, response) {
-                var results = $.ui.autocomplete.filter(POST_CODES_ARRAY, request.term);
+                var results = $.ui.autocomplete.filter(POSTCODES_ARRAY, request.term);
                 response(results.slice(0, 10));
             }, 
             delay: 500,
