@@ -530,6 +530,8 @@ function submitToMailchimp(optionals) {
 	var email = $("#Email-address").val();
 		//status
 	var status = selectedStatus;
+
+    var quoteText = $(".quote-heading").text();
 	
 
     //add today's date
@@ -555,7 +557,8 @@ function submitToMailchimp(optionals) {
 			MERGE9: status,
             MERGE10: optionals,
             MERGE11: dateToday,
-            MERGE12: quote
+            MERGE12: quote,
+            MERGE13: quoteText
 		},
 		dataType: "jsonp",
 		success: function(result) {
@@ -568,9 +571,9 @@ function submitToMailchimp(optionals) {
 
 	$.ajax(ajaxOptions);
 
-	//second mail chimp form
+	//second mail chimp form - background form
 	
-	var salesTeamFormUrl = "https://conveyancing.us18.list-manage.com/subscribe/post-json";
+	/*var salesTeamFormUrl = "https://conveyancing.us18.list-manage.com/subscribe/post-json";
 	var salesTeamU = "a65e3f2337aa9e93485dc95bb";
 	var salesTeamId = "802b1acc9c";
     ajaxOptions.data = {
@@ -589,7 +592,7 @@ function submitToMailchimp(optionals) {
     };
 	//ajaxOptions.url = salesTeamFormUrl;
 
-	$.ajax(ajaxOptions);
+	$.ajax(ajaxOptions);*/
 	
 }
 
