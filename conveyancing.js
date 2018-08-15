@@ -104,9 +104,9 @@ $(document).ready(function() {
     	
     });
 
-    $("input[name='Property-type']").click(function(event) {
+    $("input[name='Property-type-1']").click(function(event) {
         //check if buy and sell mode and there must be two property types checked
-        if ($("input[name='Property-options']:checked").val() === BUY_AND_SELL && $("input[name='Property-type-sell']:checked").length === 0) {
+        if ($("input[name='Property-options']:checked").val() === BUY_AND_SELL && $("input[name='Property-type-2']:checked").length === 0) {
             return;
         }
     	window.setTimeout(function() {
@@ -115,9 +115,9 @@ $(document).ready(function() {
     	
     });
 
-    $("input[name='Property-type-sell']").click(function(event) {
+    $("input[name='Property-type-2']").click(function(event) {
         //if other is also set
-        if ($("input[name='Property-type']:checked").length) {
+        if ($("input[name='Property-type-1']:checked").length) {
             window.setTimeout(function() {
                 $(".bottom-bar a.suburb-btn").click();
             }, RADIO_CLICK_DELAY);
@@ -210,10 +210,27 @@ $(document).ready(function() {
         if (optionals.length > 0) {
             optionalsString = optionals.join(", ");
         }
+
+
+
+
     	//populate text
     	populateQuote();
     	//submit mailchimp forms
     	submitToMailchimp(optionalsString);
+
+        $("#quote-price").val(getQuoteAmount());
+        //add quote as hidden form field
+        /*$('<input>').attr({
+                type: 'hidden',
+                id: 'quote',
+                name: 'quote-amount-hidden',
+                value: getQuoteAmount(),
+                required: ""
+        }).appendTo('form');*/
+
+        //remove unfilled fields
+        removeUnfilledFields();
     });
 
     //listeners for ga events
@@ -239,6 +256,10 @@ $(document).ready(function() {
     
     
 });
+
+function removeUnfilledFields() {
+    console.log($("input:empty"));
+}
 
 function checkQueryParams() {
     var params = getQueryParams();
@@ -274,7 +295,7 @@ function checkQueryParams() {
 
     //$(".bottom-bar.first-bar a").click();
     //type
-    $("input[name='Property-type'][value='" + decodeURIComponent(params["type"]) + "']").click();
+    $("input[name='Property-type-1'][value='" + decodeURIComponent(params["type"]) + "']").click();
     //$("a.suburb-btn").click();
     
     //postcode
@@ -322,11 +343,18 @@ var PRICE_MATRIX = {
 	}
 }
 
+function getQuoteAmount() {
+    var propertyOption = $("input[name='Property-options']:checked").val();
+    var propertyType = $("input[name='Property-type-1']:checked").val();
 
+    var price = PRICE_MATRIX[propertyOption][propertyType];
+
+    return price;
+}
 
 function populateQuote() {
 	var propertyOption = $("input[name='Property-options']:checked").val();
-	var propertyType = $("input[name='Property-type']:checked").val();
+	var propertyType = $("input[name='Property-type-1']:checked").val();
 
 	//special case for buy and sell
 	if (propertyOption === BUY_AND_SELL) {
@@ -338,7 +366,7 @@ function populateQuote() {
 	}
 
 	var postcode = formatPostcode($("#postcode").val());
-	var price = PRICE_MATRIX[propertyOption][propertyType];
+	var price = getQuoteAmount();
 
 	//populate quote heading text
 	var quoteHeadingText = $(".quote-heading").html();
@@ -518,7 +546,7 @@ function submitToMailchimp(optionals) {
 	//property options
 	var propertyOptions = $("input[name='Property-options']:checked").val();
 	//property type
-	var propertyType = $("input[name='Property-type']:checked").val();
+	var propertyType = $("input[name='Property-type-1']:checked").val();
 	//suburb
 	var postcode = $("#postcode").val();
 	//about you
