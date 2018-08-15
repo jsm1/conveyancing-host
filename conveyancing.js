@@ -258,7 +258,22 @@ $(document).ready(function() {
 });
 
 function removeUnfilledFields() {
-    console.log($("input:empty"));
+    //remove all empty text inputs
+    $("input:not([type='radio'], [type='checkbox'])").filter(function() {
+        if ($(this).val() === "" || !$(this).val()) {
+            return true;
+        }
+    }).remove();
+
+    //remove all empty checkboxes
+    $("input[type='checkbox']:not(:checked)").remove();
+
+    //remove all unselected selects
+    $("select").filter(function() {
+        if ($(this).val() === "NA") {
+            return true;
+        }
+    }).remove();
 }
 
 function checkQueryParams() {
