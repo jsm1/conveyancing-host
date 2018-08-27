@@ -235,6 +235,9 @@ $(document).ready(function() {
 
     //listeners for ga events
     $("#postcode").blur(function() {
+    	if (!$(this).val()) {
+    		return;
+    	}
         window.dataLayer.push({
           'event' : 'ENTERED SUBURB',
           'eventCategory' : 'ENTERED SUBURB',
@@ -243,9 +246,12 @@ $(document).ready(function() {
     });
 
     $("#postcode-sell").blur(function() {
+    	if (!$(this).val()) {
+    		return;
+    	}
         window.dataLayer.push({
           'event' : 'ENTERED SUBURB',
-          'eventCategory' : 'ENTERED SUBURB',
+          'eventCategory' : 'SELLING SUBURB ENTERED',
           'eventAction' : $(this).val()
         });
     });
@@ -333,22 +339,22 @@ function checkQueryParams() {
 
 var PRICE_MATRIX = {
 	Buy: {
-		"Existing Home": "900",
-		"Land": "900",
-		"apartment/unit/townhouse": "1050",
-		"Off the plan": "850"
+		"Existing Home": "990",
+		"Land": "990",
+		"apartment/unit/townhouse": "1155",
+		"Off the plan": "935"
 	},
 	Sell: {
-		"Existing Home": "900",
-		"Land": "900",
-		"apartment/unit/townhouse": "1050",
-		"Off the plan": "850"
+		"Existing Home": "990",
+		"Land": "990",
+		"apartment/unit/townhouse": "1155",
+		"Off the plan": "935"
 	},
 	Transfer: {
-		"Existing Home": "900",
-		"Land": "900",
-		"apartment/unit/townhouse": "1050",
-		"Off the plan": "850"
+		"Existing Home": "990",
+		"Land": "990",
+		"apartment/unit/townhouse": "1155",
+		"Off the plan": "935"
 	},
 	"Buy and sell": {
 		"Existing Home": "Contact Us",
