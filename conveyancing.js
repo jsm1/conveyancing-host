@@ -62,6 +62,12 @@ var PRICE_MATRIX = {
 	}
 };
 
+var VISIBLE_OPTIONS_CLASS_MAP = {
+    Buy: "buy-selected",
+    Sell: "sell-selected",
+    Transfer: "transfer-selected",
+    "Buy and sell": "buy-sell-selected"
+};
 //whether to show validation
 var shouldShowValidation = false;
 var shouldCheckPostcode = false;
@@ -104,6 +110,10 @@ $(document).ready(function() {
    		//make sure inputs for selected option are required
    		makeRequired(selectedOption);
 
+
+        //clear classes then add class to hide optionals
+        $(".options-wrapper").attr("class", "options-wrapper").addClass(VISIBLE_OPTIONS_CLASS_MAP[selectedOption]);
+
     	window.setTimeout(function() {
     		$(".bottom-bar.first-bar a").click();
     	}, RADIO_CLICK_DELAY);
@@ -141,6 +151,7 @@ $(document).ready(function() {
             isPostcodeSellValid = checkPostcodeSell();
         }
     	if (isPostcodeValid && isPostcodeSellValid) {
+            
     		$("a.about-you").click();
     	} else {
     		return;
