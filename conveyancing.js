@@ -35,6 +35,33 @@ var TYPE_TEXT_MATRIX = {
 var BUY_AND_SELL = "Buy and sell";
 var BUY_AND_SELL_TEXT = "Since you selected buy and sell we'll need more info...";
 
+var PRICE_MATRIX = {
+	Buy: {
+		"Existing Home": "990",
+		"Land": "990",
+		"apartment/unit/townhouse": "1155",
+		"Off the plan": "935"
+	},
+	Sell: {
+		"Existing Home": "990",
+		"Land": "990",
+		"apartment/unit/townhouse": "1155",
+		"Off the plan": "935"
+	},
+	Transfer: {
+		"Existing Home": "990",
+		"Land": "990",
+		"apartment/unit/townhouse": "1155",
+		"Off the plan": "935"
+	},
+	"Buy and sell": {
+		"Existing Home": "Contact Us",
+		"Land": "Contact Us",
+		"apartment/unit/townhouse": "Contact Us",
+		"Off the plan": "Contact Us"
+	}
+};
+
 //whether to show validation
 var shouldShowValidation = false;
 var shouldCheckPostcode = false;
@@ -42,27 +69,6 @@ var shouldCheckPostcodeSell = false;
 //global to keep track of select status
 var selectedStatus = "";
 $(document).ready(function() {
-
-
-	//loqate
-	/*var control = configureLoqate();
-	control.listen("populate", function(address, variations) {
-			console.log(address);
-            document.getElementById("postcode").value = address.City + ", " + address.PostalCode;
-     });
-    
-
-    //test loqate
-    $("#postcode").change(function() {
-    	var value = $(this).val();
-    	console.log(value);
-    	var Key = "WN86-WF99-YA99-TT77";
-    	var Country = "AUS";
-    	//Capture_Interactive_Find_v1_00Begin("WN86-WF99-YA99-TT77", value, "#postcode", "AUS", "AUS", 7, "en");
-    	//StoreFinder_Interactive_FindPlaceNames_v1_10Begin("WN86-WF99-YA99-TT77", value, "Similar", "AUS")
-    	//Geocoding_International_RetrieveNearestPlaces_v1_00Begin(Key, Country, value, 10, 0, "None");
-    });*/
-
     //jQuery autocomplete for postcodes
     $("#postcode, #postcode-sell").autocomplete(
         {
@@ -220,14 +226,7 @@ $(document).ready(function() {
     	submitToMailchimp(optionalsString);
 
         $("#quote-price").val(getQuoteAmount());
-        //add quote as hidden form field
-        /*$('<input>').attr({
-                type: 'hidden',
-                id: 'quote',
-                name: 'quote-amount-hidden',
-                value: getQuoteAmount(),
-                required: ""
-        }).appendTo('form');*/
+
 
         //remove unfilled fields
         removeUnfilledFields();
@@ -274,6 +273,11 @@ function removeUnfilledFields() {
     //remove all empty checkboxes
     $("input[type='checkbox']:not(:checked)").remove();
 
+    //remove Property-type-2 if empty
+    if ($("input[name='Property-type-2']:checked").length === 0) {
+    	$("input[name='Property-type-2']").remove();
+    }
+
     //remove all unselected selects
     $("select").filter(function() {
         if ($(this).val() === "NA") {
@@ -284,13 +288,7 @@ function removeUnfilledFields() {
 
 function checkQueryParams() {
     var params = getQueryParams();
-    //if there is are query params then show loading screen
-    /*if (Object.keys(params).length === 0) {
-        return;
-    } else {
-        $("#loading-block").show();
-        $("#wf-form-Main-Quote-Form").hide();
-    }*/
+
     const REQUIRED_PARAMS = ["option", "type", "suburb"];
 
     for (var i = 0; i < REQUIRED_PARAMS.length; i++) {
@@ -298,13 +296,7 @@ function checkQueryParams() {
             return;
         }
     }
-    //replaced for..let for IE 11
-/*
-    for (let p of REQUIRED_PARAMS) {
-        if (!params[p]) {
-            return;
-        }
-    }*/
+
 
     //option
     $("input[name='Property-options'][value='" + decodeURIComponent(params["option"]) + "']").click();
@@ -330,39 +322,12 @@ function checkQueryParams() {
 
     window.setTimeout(function() {
         $("a.about-btn").click();
-      //  $("#loading-block").hide();
-        //$("#wf-form-Main-Quote-Form").show();
+
     }, 500);
 
     //$("a[data-w-tab='About you']").click();
 }
 
-var PRICE_MATRIX = {
-	Buy: {
-		"Existing Home": "990",
-		"Land": "990",
-		"apartment/unit/townhouse": "1155",
-		"Off the plan": "935"
-	},
-	Sell: {
-		"Existing Home": "990",
-		"Land": "990",
-		"apartment/unit/townhouse": "1155",
-		"Off the plan": "935"
-	},
-	Transfer: {
-		"Existing Home": "990",
-		"Land": "990",
-		"apartment/unit/townhouse": "1155",
-		"Off the plan": "935"
-	},
-	"Buy and sell": {
-		"Existing Home": "Contact Us",
-		"Land": "Contact Us",
-		"apartment/unit/townhouse": "Contact Us",
-		"Off the plan": "Contact Us"
-	}
-}
 
 function getQuoteAmount() {
     var propertyOption = $("input[name='Property-options']:checked").val();
@@ -383,6 +348,7 @@ function populateQuote() {
 		$(".quote-heading").html(BUY_AND_SELL_TEXT);
 		$(".quote-amount").hide();
 		$(".quote-inclusions").hide();
+		$("#gst-text").hide();
 		return;
 	}
 
@@ -488,14 +454,7 @@ function checkPostcodeSell() {
         }
         return false;
     }
-    /*
-    if (!$("#postcode").val()) {
-        $("#postcode").parent(".validation-field-wrapper").children(".validation-error:not(.outside-victoria-message)").show();
-        return false;
-    } else {
-        $("#postcode").parent(".validation-field-wrapper").children(".validation-error:not(.outside-victoria-message)").hide();
-        return true;
-    }*/
+
 }
 
 function checkName() {
@@ -544,13 +503,6 @@ function checkPhoneNumber() {
 		$("#Phone-number").parent(".validation-field-wrapper").children(".validation-error").hide();
 		return true;
 	}
-}
-
-function configureLoqate() {
-	var fields = [{ element: "postcode", field: "{City!}" }];
-	var settings = { key: "WN86-WF99-YA99-TT77", search: { countries: "AUS" }, setCountryByIP: false };
-	var control = new pca.Address(fields, settings);
-	return control;
 }
 
 function makeUnRequired(selectedOption) {
@@ -620,28 +572,6 @@ function submitToMailchimp(optionals) {
 
 	$.ajax(ajaxOptions);
 
-	//second mail chimp form - background form
-	
-	/*var salesTeamFormUrl = "https://conveyancing.us18.list-manage.com/subscribe/post-json";
-	var salesTeamU = "a65e3f2337aa9e93485dc95bb";
-	var salesTeamId = "802b1acc9c";
-    ajaxOptions.data = {
-        u: salesTeamU,
-        id: salesTeamId,
-        MERGE0: email,
-        MERGE1: name,
-        MERGE2: "",
-        MERGE5: propertyOptions,
-        MERGE6: propertyType,
-        MERGE7: postcode,
-        MERGE8: status,
-        MERGE9: optionals,
-        MERGE10: dateToday,
-        MERGE11: quote
-    };
-	//ajaxOptions.url = salesTeamFormUrl;
-
-	$.ajax(ajaxOptions);*/
 	
 }
 
@@ -666,18 +596,6 @@ function getQueryParams() {
             params[keyValue[0]] = "";
         }
     }
-    //removed for...let for IE 11
-/*
-    for (let p of paramsSplit) {
-        var keyValue = p.split("=");
-        //if key and value present
-        if (keyValue.length > 1) {
-            params[keyValue[0]] = keyValue[1];
-        } else {
-            params[keyValue[0]] = "";
-        }
-        
-    }*/
 
     return params;
 
